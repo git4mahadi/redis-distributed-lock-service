@@ -34,7 +34,7 @@ public class RedisService {
         log.warn("Bucket Value: {}", bucket.get());
       } else {
         int totalCount = salesRepository.findAllBySalesNoNotNull().size();
-        bucket.set("INV"+totalCount);
+        bucket.set("INV"+(++totalCount));
         log.warn("Bucket Value: {}", bucket.get());
       }
       Thread.sleep(1000);

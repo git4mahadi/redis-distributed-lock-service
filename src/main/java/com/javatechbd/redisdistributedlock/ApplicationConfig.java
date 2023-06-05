@@ -14,7 +14,7 @@ public class ApplicationConfig {
   CommandLineRunner commandLineRunner(RedisService redisService,
                                       SalesRepository salesRepository) {
     return args -> {
-      redisService.resetBucket();
+//      redisService.resetBucket();
       IntStream.rangeClosed(1, 10).parallel()
         .forEach(itm-> {
           System.out.println(itm);
