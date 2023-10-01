@@ -15,10 +15,10 @@ public class ApplicationConfig {
                                       SalesRepository salesRepository) {
     return args -> {
 //      redisService.resetBucket();
-      IntStream.rangeClosed(1, 10).parallel()
+      IntStream.rangeClosed(1, 100).parallel()
         .forEach(itm-> {
           System.out.println(itm);
-          salesRepository.save(new SalesEntity(redisService.lock(),"instance-1"));
+          salesRepository.save(new SalesEntity(redisService.getSalesId(),"instance-1"));
         });
     };
   }

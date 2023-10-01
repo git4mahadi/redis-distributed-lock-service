@@ -20,43 +20,48 @@ public class RedisService {
   private final SalesRepository salesRepository;
 
   public String lock() {
+
     RLock rLock = redissonClient.getLock("myLock3");
-    log.info(" Into the method ");
-    RBucket<String> bucket = redissonClient.getBucket("stringObject3");
+
     try {
+      log.info(" Into the method ");
+      RBucket<String> bucket = redissonClient.getBucket("stringObject3");
       //  Lock ,30 Seconds later, the lock will be released automatically
       rLock.lock(30, TimeUnit.SECONDS);
       log.info("For the lock ");
 
-      if(bucket.get()!=null) {
+      if (bucket.get() != null) {
         int newSl = Integer.parseInt(bucket.get().substring(3));
-        bucket.set("INV"+ (++newSl));
+        bucket.set("INV" + (++newSl));
         log.warn("Bucket Value: {}", bucket.get());
       } else {
         int totalCount = salesRepository.findAllBySalesNoNotNull().size();
-        bucket.set("INV"+(++totalCount));
+        bucket.set("INV" + (++totalCount));
         log.warn("Bucket Value: {}", bucket.get());
       }
       Thread.sleep(1000);
+
+      return bucket.get();
     } catch (Exception ex) {
       log.error(ex.getMessage(), ex);
+      throw new RuntimeException("eroor whiel creatting id");
     } finally {
-      //  Release the lock
-//            RMap<String, String> map = redissonClient.getMap("theMap");
-//            String mapValue = map.get("mapKey");
-//            if(map.get("mapKey")!=null) {
-//                Integer sl = Integer.parseInt(mapValue);
-//                map.put("mapKey", Integer.toString(++sl));
-//            }
-//            System.out.println("The map value is: " + map.get("mapKey"));
       rLock.unlock();
       log.info("Lock released ");
     }
-    return bucket.get();
   }
 
   public void resetBucket() {
     RBucket<String> bucket = redissonClient.getBucket("stringObject3");
     bucket.delete();
+  }
+
+
+  public String getSalesId() {
+    String salesId = null;
+    while (salesId == null) {
+      salesId = this.lock();
+    }
+    return salesId;
   }
 }
